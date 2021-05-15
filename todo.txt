@@ -1,0 +1,14 @@
+0. import requests
+session = requests.Session()
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+}
+html = session.get(WIKI_URL, headers=headers).content
+bsObj = BeautifulSoup(html, "html.parser”) // request 모듈 사용하여 User_agent 만들기
+
+rand_value = randint(1, MAX_SLEEP_TIME)
+time.sleep(rand_value) // 부하 줄이기
+
+1. wordcloud jpg로 저장
+2. tkinter 에서 keyword dict와 저장한 이미지 출력
+3.
