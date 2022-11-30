@@ -179,7 +179,7 @@ def ConstructInfoSite(keyword):
     bsObject = bs(html, "html.parser")
     v = bsObject.select('a.img_bdr')
     for elem in v:
-        tempURL = "https://www.yes24.com" +  elem['href']
+        tempURL = "https://www.yes24.com/herf=" +  elem['href']
         imgTag = elem.find("img")
         tempImg = imgTag["src"]
         tempName = imgTag["alt"]
