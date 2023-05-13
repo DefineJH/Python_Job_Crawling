@@ -1,5 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup as bs
+from requests_html import HTMLSession
 import urllib.parse
 import webbrowser
 import wordcloud
@@ -11,7 +12,7 @@ recruit_page = list()
 
 keywords = dict()
 
-NGWords = ['서울','시','구','학원', '지역' , '경기' ,'병역']
+NGWords = ['서울','시','구','학원', '지역' , '경기' ,'병역','개발자', '프로그래머']
 
 
 
@@ -99,7 +100,7 @@ def JobKorea_KeywordListing():
 
         for elem2 in tempSelected:
             word = elem2.getText()[1:-1]
-            print(word + " is dsds")
+            print(word)
             if InspectKeyword(word):
                 if word not in keywords:
                     keywords[word] = 0
@@ -147,15 +148,15 @@ def ConstructInfoSite(keyword):
     wiki = ""
     html_middle += "<div> <h1> 구글검색 </h1> <br>"
     for i in v:
+        print(i.select_one('h3').text) # 제목
+        print(i.a.attrs['href'])       # 링크
         urls = i.a.attrs['href']
         if "namu" in i.a.attrs['href']:
             wiki += ("<button onclick=\"location.href=\'" + urls + "\'\">나무위키 " + keyword + "검색 </button>")
         elif "wikipedia" in i.a.attrs['href']:
             wiki += ("<button onclick=\"location.href=\'" + urls + "\'\">위키피디아 " + keyword + "검색 </button>")
         else:
-            html_middle +="<a href=\""+urls+"\"><h3>"+i.select_one('.LC20lb.DKV0Md').text+"</h3></a>"
-        print(i.select_one('.LC20lb.DKV0Md').text) # 제목
-        print(i.a.attrs['href'])       # 링크
+            html_middle +="<a href=\""+urls+"\"><h3>"+i.select_one('h3').text+"</h3></a>"
 
     html_middle += "<div> <h1> 위키 사이트 </h1> <br>"+wiki
     html_middle += "</div>"
@@ -170,20 +171,27 @@ def ConstructInfoSite(keyword):
     print(enc)
     print(url)
 
+    session = HTMLSession()
 
-    session = requests.Session()
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
-    }
-    html = session.get(url, headers=headers).content
+
+    resp = session.get(url)
+    resp.html.render()
+    html = resp.html.html
+
+
     bsObject = bs(html, "html.parser")
-    v = bsObject.select('a.img_bdr')
+    print(bsObject.string)
+    v = bsObject.select('.lnk_img')
     for elem in v:
-        tempURL = "https://www.yes24.com/herf=" +  elem['href']
-        imgTag = elem.find("img")
-        tempImg = imgTag["src"]
-        tempName = imgTag["alt"]
-        books.append([tempURL,tempImg,tempName])
+        print(elem["href"])
+        tempURL = "http://www.yes24.com" +  elem['href']
+        imgTag = elem.select_one('.img_bdr').select('img')
+        for img in imgTag:
+            tempImg = img["src"]
+            tempName = img["alt"]
+            if tempImg != "https://image.yes24.com/sysimage/renew/loadSpace.png":
+                books.append([tempURL,tempImg,tempName])
+            
 
 
     for b in books:
@@ -194,4 +202,7 @@ def ConstructInfoSite(keyword):
     f.write(html_text_start + html_middle + html_text_end)
 
     webbrowser.open("final_page.html")
+
+
+
 
